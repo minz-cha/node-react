@@ -51,28 +51,26 @@ userSchema.pre('save', function (next) {
     }
 })
 
-userSchema.methods.comparePassword = function (plainPassword, cb) {
-
-    bcrypt.compare(plainPassword, this.password, function (err, isMatch) {
-        if (err) return cb(err);
-        cb(null, isMatch);
-        // if (plainPassword === this.password) {
-        //     cb(null, isMatch);
-        // } else {
-        //     cb('password 불일치');
-        // }
+userSchema.methods.comparePassword = function (plainPassword) {
+    console.log(plainPassword)
+    return new Promise((resolve, reject) => {
+        bcrypt.compare(plainPassword, this.password, (err, isMatch) => {
+            if (err) {
+                reject(err)
+            } else {
+                resolve(isMatch)
+            }
+        })
     })
 }
 
-userSchema.methods.generateToken = function (cb) {
-    var user = this;
-    //jsonwebtoken을 이용해 토큰 생성
-    var token = jwt.sign(user._id.toHexString(), "secretToken");
+userSchema.methods.generateToken = function () {
+    const user = this;
+    const token = jwt.sign({ userId: user._id.toHexString() }, "secretToken");
+
     user.token = token;
-    user.save(function (err, user) {
-        if (err) return cb(err);
-        cb(null, user);
-    });
+    return user.save()
+        .then(() => token);
 };
 
 const User = mongoose.model('User', userSchema)

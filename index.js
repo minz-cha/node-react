@@ -6,6 +6,7 @@ const cookieParser = require('cookie-parser')
 const config = require('./config/key')
 const { User } = require('./models/User')
 const mongoose = require('mongoose')
+// mongoose.Promise = global.Promise;
 
 //application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: true }))
@@ -27,8 +28,13 @@ mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true })
 app.get('/', (req, res) => res.send('Hello World!'))
 
 app.post('/register', async (req, res) => {
+    //회원가입시 필요 정보를 client에서 가져오면
+    //데이터베이스에 삽입한다
+
+    //body parser를 통해 body에 담긴 정보를 가져온다
     const user = new User(req.body)
 
+    //mongoDB 메서드, user모델에 저장
     const result = await user.save().then(() => {
         res.status(200).json({
             success: true
@@ -40,40 +46,26 @@ app.post('/register', async (req, res) => {
 
 app.post('/login', async (req, res) => {
 
-    // 요청된 이메일이 DB에 있는지 조회
-    await User.findOne({ email: req.body.email })
-        .then(user => {
-            if (!user) {
-                return res.json({
-                    loginSuccess: false,
-                    message: "제공된 이메일에 해당하는 유저가 없습니다."
-                })
-            }
-            // 해당 이메일이 있다면 비밀번호가 맞는지 확인
-            user.comparePassword(req.body.password, (err, isMatch) => {
-                if (!isMatch)
-                    return res.json({ loginSuccess: false, message: "비밀번호가 틀렸습니다." })
-
-                // 비밀번호 확인되면 토큰 생성
-                user.generateToken((err, user) => {
-                    if (err) return res.status(400).send(err)
-                    //토큰 저장
-                    res.cookie("user_auth", user.token)
-                        .status(200)
-                        .json({ loginSuccess: true, userId: user._id })
-                })
+    try {
+        const user = await User.findOne({ email: req.body.email })
+        if (!user) {
+            return res.json({
+                loginSuccess: false,
+                message: "제공된 이메일에 해당하는 유저가 없습니다."
             })
-        })
-        .catch((err) => {
-            return res.status(400).send(err)
-        })
-    // const result = await user.save().then(() => {
-    //     res.status(200).json({
-    //         success: true
-    //     })
-    // }).catch((err) => {
-    //     res.json({ success: false, err })
-    // })
+        }
+
+        const isMatch = await user.comparePassword(req.body.password);
+        console.log(isMatch)
+        if (!isMatch) {
+            return res.json({ loginSuccess: false, message: "비밀번호가 틀렸습니다." });
+        }
+
+        const token = await user.generateToken();
+        res.cookie("user_auth", token).status(200).json({ loginSuccess: true, userId: user._id });
+    } catch (err) {
+        return res.status(400).send(err);
+    }
 })
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`))
