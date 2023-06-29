@@ -5,8 +5,8 @@ const bodyParser = require('body-parser')
 const cookieParser = require('cookie-parser')
 const config = require('./config/key')
 const { User } = require('./models/User')
+const { auth } = require('./middleware/auth')
 const mongoose = require('mongoose')
-// mongoose.Promise = global.Promise;
 
 //application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: true }))
@@ -66,6 +66,22 @@ app.post('/login', async (req, res) => {
     } catch (err) {
         return res.status(400).send(err);
     }
+})
+
+// role 0: admin
+// role 1: 일반 유저 
+app.get('/auth', auth, (req, res) => {
+
+    res.status(200).json({
+        _id: req.user._id,
+        isAdmin: req.user.role === 0 ? true : false,
+        isAuth: true,
+        email: req.user.email,
+        name: req.user.name,
+        lastname: req.user.lastname,
+        role: req.user.role,
+        image: req.user.image
+    })
 })
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`))
