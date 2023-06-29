@@ -78,10 +78,24 @@ app.get('/auth', auth, (req, res) => {
         isAuth: true,
         email: req.user.email,
         name: req.user.name,
-        lastname: req.user.lastname,
         role: req.user.role,
         image: req.user.image
     })
+})
+
+app.get('/logout', auth, async (req, res) => {
+    try {
+        await User.findOneAndUpdate(
+            { _id: req.user._id },
+            { token: '' }
+        );
+
+        return res.status(200).send({
+            success: true
+        });
+    } catch (err) {
+        return res.json({ success: false, err });
+    }
 })
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`))
