@@ -1,7 +1,7 @@
-const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
-const saltRounds = 10;
-const jwt = require('jsonwebtoken');
+const mongoose = require('mongoose')
+const bcrypt = require('bcrypt')
+const saltRounds = 10
+const jwt = require('jsonwebtoken')
 
 const userSchema = mongoose.Schema({
     name: {
@@ -32,7 +32,7 @@ const userSchema = mongoose.Schema({
 
 // 'save'동작 전에 이뤄짐
 userSchema.pre('save', function (next) {
-    var user = this;
+    var user = this
 
     // isModified - mongoose 모듈 내장함수
     if (user.isModified('password')) {
@@ -65,13 +65,13 @@ userSchema.methods.comparePassword = function (plainPassword) {
 }
 
 userSchema.methods.generateToken = function () {
-    const user = this;
-    const token = jwt.sign({ userId: user._id.toHexString() }, "secretToken");
+    const user = this
+    const token = jwt.sign({ userId: user._id.toHexString() }, "secretToken")
 
-    user.token = token;
+    user.token = token
     return user.save()
-        .then(() => token);
-};
+        .then(() => token)
+}
 
 userSchema.statics.findByToken = function (token) {
     const user = this

@@ -55,16 +55,16 @@ app.post('/login', async (req, res) => {
             })
         }
 
-        const isMatch = await user.comparePassword(req.body.password);
+        const isMatch = await user.comparePassword(req.body.password)
         console.log(isMatch)
         if (!isMatch) {
-            return res.json({ loginSuccess: false, message: "비밀번호가 틀렸습니다." });
+            return res.json({ loginSuccess: false, message: "비밀번호가 틀렸습니다." })
         }
 
-        const token = await user.generateToken();
-        res.cookie("user_auth", token).status(200).json({ loginSuccess: true, userId: user._id });
+        const token = await user.generateToken()
+        res.cookie("user_auth", token).status(200).json({ loginSuccess: true, userId: user._id })
     } catch (err) {
-        return res.status(400).send(err);
+        return res.status(400).send(err)
     }
 })
 
@@ -88,13 +88,13 @@ app.get('/logout', auth, async (req, res) => {
         await User.findOneAndUpdate(
             { _id: req.user._id },
             { token: '' }
-        );
+        )
 
         return res.status(200).send({
             success: true
-        });
+        })
     } catch (err) {
-        return res.json({ success: false, err });
+        return res.json({ success: false, err })
     }
 })
 
