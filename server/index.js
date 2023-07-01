@@ -1,6 +1,6 @@
 const express = require('express')
 const app = express()
-const port = 3000
+const port = 5000
 const bodyParser = require('body-parser')
 const cookieParser = require('cookie-parser')
 const config = require('./config/key')
@@ -27,7 +27,11 @@ mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true })
 
 app.get('/', (req, res) => res.send('Hello World!'))
 
-app.post('/register', async (req, res) => {
+app.get('/api/hello', (req, res) => {
+    res.send("안녕하세요")
+})
+
+app.post('/api/users/register', async (req, res) => {
     //회원가입시 필요 정보를 client에서 가져오면
     //데이터베이스에 삽입한다
 
@@ -44,7 +48,7 @@ app.post('/register', async (req, res) => {
     })
 })
 
-app.post('/login', async (req, res) => {
+app.post('/api/users/login', async (req, res) => {
 
     try {
         const user = await User.findOne({ email: req.body.email })
@@ -70,7 +74,7 @@ app.post('/login', async (req, res) => {
 
 // role 0: admin
 // role 1: 일반 유저 
-app.get('/auth', auth, (req, res) => {
+app.get('/api/users/auth', auth, (req, res) => {
 
     res.status(200).json({
         _id: req.user._id,
@@ -83,7 +87,7 @@ app.get('/auth', auth, (req, res) => {
     })
 })
 
-app.get('/logout', auth, async (req, res) => {
+app.get('/api/users/logout', auth, async (req, res) => {
     try {
         await User.findOneAndUpdate(
             { _id: req.user._id },
