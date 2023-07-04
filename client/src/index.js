@@ -1,5 +1,6 @@
 import React from 'react'
-import ReactDOM from 'react-dom/client'
+// import ReactDOM from 'react-dom'
+import { createRoot } from 'react-dom/client';
 import './index.css'
 import { Provider } from 'react-redux'
 // import { applyMiddleware, createStore } from 'redux'
@@ -17,11 +18,17 @@ const store = configureStore({
   devTools: true
 });
 
-ReactDOM.render(
+// ReactDOM.render(
+//   <Provider store={store}>
+//     <App />
+//   </Provider>,
+//   document.getElementById('root')
+// );
+
+createRoot(document.getElementById('root')).render(
   <Provider store={store}>
     <App />
-  </Provider>,
-  document.getElementById('root')
+  </Provider>
 );
 
 reportWebVitals();
