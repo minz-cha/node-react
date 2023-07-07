@@ -1,52 +1,39 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import axios from 'axios'
 
-function LandingPage() {
-
-    const [Email, setEmail] = useState("")
-    const [Password, setPassword] = useState("")
-
-    const onEmailHandler = (e) => {
-        setEmail(e.target.value);
-    };
-
-    const onPasswordHandler = (e) => {
-        setPassword(e.target.value);
-    };
-
-    const onSubmitHandler = (e) => {
-        e.preventDefault();
-
-        console.log('Email', Email)
-        console.log('Password', Password)
-    };
-
+function LandingPage(props) {
 
     useEffect(() => {
         axios.get('/api/hello')
-            .then(response => console.log(response))
+            .then(response => { console.log(response) })
     }, [])
+
+
+    const onClickHandler = () => {
+        axios.get(`/api/users/logout`)
+            .then(response => {
+                if (response.data.success) {
+                    props.history.push("/login")
+                } else {
+                    alert('로그아웃 하는데 실패 했습니다.')
+                }
+            })
+    }
 
     return (
         <div style={{
-            display: 'flex', justifyContent: 'center', alignItems: 'center',
-            width: '100%', height: '100vh'
+            display: 'flex', justifyContent: 'center', alignItems: 'center'
+            , width: '100%', height: '100vh'
         }}>
-            <form style={{ display: 'flex', flexDirection: 'column' }}
-                onSubmit={onSubmitHandler}
-            >
-                <label>Email</label>
-                <input type='email' value={Email} onChange={onEmailHandler} />
-                <label>Password</label>
-                <input type='password' value={Password} onChange={onPasswordHandler} />
+            <h2>시작 페이지</h2>
 
-                <br />
-                <button>
-                    Login
-                </button>
-            </form>
+            <button onClick={onClickHandler}>
+                로그아웃
+            </button>
+
         </div>
     )
 }
+
 
 export default LandingPage
